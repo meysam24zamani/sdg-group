@@ -1,0 +1,90 @@
+version: '2'
+
+services:
+  spark:
+    image: docker.io/bitnami/spark:3-debian-10
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - '8080:8080'
+  spark-worker-1:
+    image: docker.io/bitnami/spark:3-debian-10
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+  spark-worker-2:
+    image: docker.io/bitnami/spark:3-debian-10
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+
+  postgres:
+    container_name: postgres_container
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_URL=postgres
+      - PGDATA=/var/lib/postgresql/data
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+       - db-data:/var/lib/postgresql/data
+    logging:
+            options:
+                max-size: 10m
+                max-file: "3"
+    ports:
+      - "6000:5432"
+
+    restart: always
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:4.18
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_LISTEN_PORT=5050
+      - PGADMIN_LISTEN_ADDRESS:0.0.0.0
+    volumes:
+       - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:5050"
+    tty: true
+    restart: always
+    depends_on: 
+      - postgres 
+    links: 
+      - "postgres:pgsql-server"
+
+  webserver:
+    image: puckel/docker-airflow
+    restart: always
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    environment:
+      - LOAD_EX=y
+    ports:
+      - "8090:8080"
+    command: webserver
+
+volumes:
+    db-data:
+    pgadmin-data:
