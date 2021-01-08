@@ -9,7 +9,9 @@ docker-compose up
 By running "docker-compose up", all required services become available. They listed as below: 
 
 1- Apache Spark (With two available workers): http://localhost:8080/
+
 2- pgAdmin4 (A user interface for using PostgreSQL): http://localhost:5050/
+
 3- Apache Airflow: http://localhost:8090/
 
 
