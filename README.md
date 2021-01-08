@@ -9,19 +9,13 @@ docker-compose up
 By running "docker-compose up", all required services become available. They listed as below: 
 
 1- Apache Spark (With two available workers): http://localhost:8080/
-
 2- pgAdmin4 (A user interface for using PostgreSQL): http://localhost:5050/
-
 3- Apache Airflow: http://localhost:8090/
 
- 
+
 Next step would be running our main python scripts which has a model for Time Series Forecasting. These python scripts will be run through another container which is created to work as a driver for calling the spark cluster (Also known as spark-submit). The python codes are based on the notebook that was provided by the statment of the project and developed by me.
 
-<<<<<<< HEAD
 The spark-driver docker container will be created directly and not by docker-compose that I proposed before. The reason that I decided to make it separet from other services is that I wanted to have control on the naming system of the created docker image, inorder to can push/pull it to/from a registery (In this example, I have conected it to my dockerhub account, but it can be easly change and connect to whatever registery that works better like gitlab). I have created 4 bash script inorder to make this procedure automate and just by running them, we can have the expected result. For using them you have to navigate into the "spark-driver" folder. The list of the bash scripts and their descriptions are available as below:
-=======
-The docker container will be create directly and not by docker-compose that I proposed before. The reason that I decided to make it separet from other services is that I want to have control on the naming system of the created docker image, inorder to can push/pull it to/from a registery (In this example, I used my dockerhub account, but it can be easly change and connect to whatever registery that works better like gitlab). I have created 3 bash script inorder to make this procedure automate and just by running them, we can have the expected result. The scripts are:
->>>>>>> 3419c28160d94e932e0f652d941d9e2a36a06aeb
 
 docker_build_and_run.sh => Building docker image based on the docker file and run it in a proper way.
 
@@ -32,7 +26,6 @@ docker_push.sh => Pushing the developed docker image into the registry (In my ca
 docker_pull_and_run.sh => Pulling the last version of the docker image that we previously push it to the registry, and run it in a proper way.
 
 
-<<<<<<< HEAD
 The python scripts that are run through these bash scripts, are placed in "scripts" directory. The list of the python scripts and their descriptions are available as below: 
 
 SCRIPT1 => process-individual-stores-items.py : Training time series forecasting models in parallel with Spark through the pandas user-defined functions (UDFs). This file would be the one that we are intrested to submit it into the Spark and for doing that we will use the spark-driver docker container.
@@ -50,23 +43,15 @@ SCRIPT5 => schema.py : Create all tables in to the PostgreSQL database. This scr
 
 
 For running SCRIPT3 and SCRIPT5, you can simply run them localy. Just before running them, it would be necessary to install all dependencies localy, and for doing that, you might want to use hereunder command for creating local envirnoment with all dependencies installed there.
-=======
-There is a python script named "test-process.py" which is implimented inorder to read the data from CSV file, load it into Spark dataframe, create the model on top of that and saving the final 90days forcasting model into the pickle file as it asked in the statment of the project. For doing that, you can simply run it localy. Just before running it, we have to install all dependencies localy, and for doing that, you might want to use hereunder command for creating local envirnoment with all dependencies installed there (It can be run in the same docker container that we created for running main python script as well).
->>>>>>> 3419c28160d94e932e0f652d941d9e2a36a06aeb
 
 ```bash
 # Creat a virtual envirnoment with all dependencies installed in python version 3.7 
 python3.7 -m venv env && source env/bin/activate && pip install --upgrade pip && pip install -r requirements.txt 
 
 ## Run the Script.
-<<<<<<< HEAD
 python $SCRIPT3 or $SCRIPT5 
 ```
 
 ## Airflow:
 
 Apache Airflow is a workflow automation and scheduling system that can be used to author and manage data pipelines. Airflow uses workflows made of directed acyclic graphs (DAGs) of tasks. In this project, I have created a dag named "run_pyspark_app.py" which it supposed to run all the scripts from 3 paths. One path for running "process-individual-stores-items.py" by using SparkSubmitOperator. The other path would be running "schema.py" and "process-single-forecast-postgresql.py" inorder to have the result of single item/store forecast in PostgreSQL, and the last path for running "process-single-forecast.py" which will show the results the same as previous script in to the logs page.
-=======
-python test-process.py 
-```
->>>>>>> 3419c28160d94e932e0f652d941d9e2a36a06aeb
