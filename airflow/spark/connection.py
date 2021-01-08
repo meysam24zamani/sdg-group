@@ -1,6 +1,6 @@
 import psycopg2
 
-DB_NAME = "postgres"
+DB_NAME = "postgres_db"
 DB_USER = "admin"
 DB_PASS = "admin"
 DB_HOST = "localhost"
@@ -16,5 +16,5 @@ try:
 except:
     print("Database not connected")
 
-cursor = conn.cursor()
+cur = conn.cursor()
 

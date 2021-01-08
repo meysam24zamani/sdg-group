@@ -2,6 +2,7 @@ version: '2'
 
 services:
   spark:
+    container_name: spark-master
     image: docker.io/bitnami/spark:3-debian-10
     environment:
       - SPARK_MODE=master
@@ -11,7 +12,11 @@ services:
       - SPARK_SSL_ENABLED=no
     ports:
       - '8080:8080'
+    #networks:
+    #  - spark-network
+
   spark-worker-1:
+    container_name: spark-worker-1
     image: docker.io/bitnami/spark:3-debian-10
     environment:
       - SPARK_MODE=worker
@@ -22,7 +27,11 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+    #networks:
+    #  - spark-network
+
   spark-worker-2:
+    container_name: spark-worker-2
     image: docker.io/bitnami/spark:3-debian-10
     environment:
       - SPARK_MODE=worker
@@ -33,6 +42,8 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+    #networks:
+    #  - spark-network
 
   postgres:
     container_name: postgres_container
@@ -75,10 +86,16 @@ services:
       - "postgres:pgsql-server"
 
   webserver:
+    container_name: airflow_container
     image: puckel/docker-airflow
     restart: always
+    depends_on: 
+      - postgres
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/test:/usr/local/airflow/test
+      - ./airflow/plugins:/usr/local/airflow/plugins
+      - ./airflow/config:/usr/local/airflow/config
     environment:
       - LOAD_EX=y
     ports:
@@ -88,3 +105,9 @@ services:
 volumes:
     db-data:
     pgadmin-data:
+
+#networks:
+#  spark-network:
+#    driver: bridge
+#    ipam:
+#      driver: default

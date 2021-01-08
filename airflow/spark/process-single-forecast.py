@@ -1,5 +1,3 @@
-import psycopg2
-#from connection import conn, cursor
 from pyspark.sql.types import *
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
@@ -11,6 +9,7 @@ import pickle
 from fbprophet import Prophet
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from math import sqrt
+import logging
 
 
 sc = SparkContext('local')
@@ -94,6 +93,11 @@ history_pd = spark.sql(sql_statement).toPandas()
 history_pd = history_pd.dropna()
 print("Pandas dataframe from available data, aggrigated base on date would be ", "" ,history_pd)
 
+
+# disable informational messages from fbprophet
+logging.getLogger('py4j').setLevel(logging.ERROR)
+
+
 # set model parameters
 model = Prophet(
   interval_width=0.95,
@@ -108,7 +112,7 @@ model = Prophet(
 model.fit(history_pd)
 
 # Save trained model to pickle
-with open('trained-model.pickle', 'wb') as f:
+with open('trained-model/trained-model.pickle', 'wb') as f:
     pickle.dump(model, f)
 
 # uncomment this code for later use of saved model through the pickle file
@@ -152,40 +156,3 @@ rmse = sqrt(mse)
 # print metrics to the screen
 print("calculated evaluation metrics would be:")
 print( '\n'.join(['MAE: {0}', 'MSE: {1}', 'RMSE: {2}']).format(mae, mse, rmse) )
-
-
-
-
-#pandas_df = pd.read_csv('dataset/train.csv')
-#print("pandas_df is", pandas_df)
-
-
-
-########################################################
-#conn.set_session(autocommit=True)
-
-##Delete all tables and make the schema empty.
-#querydrop = """
-#DROP SCHEMA public CASCADE;
-#CREATE SCHEMA public;
-#GRANT ALL ON SCHEMA public TO admin;
-#GRANT ALL ON SCHEMA public TO public;
-#COMMENT ON SCHEMA public IS 'standard public schema';
-#"""
-#cursor.execute(querydrop)
-#print("All tables are deleted successfully")
-#print("-----------------------------------")
-#print("-----------------------------------")
-
-#query1 = "SELECT year(date) as year, sum(sales) as sales FROM %s GROUP BY year(date) ORDER BY year"
-#cursor.execute(query1, (Train))
-#print("Query on data-> Done")
-#conn.commit()
-
-
-## Close the cursor
-#cursor.close()
-
-## Close the connection
-#conn.close()
-################################################################
